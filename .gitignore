@@ -10,6 +10,8 @@ __pycache__/
 data/*
 !data/configs
 !data/mesh
+data/mesh/*
+!data/mesh/mesh2018.pkl
 
 # Distribution / packaging
 .Python

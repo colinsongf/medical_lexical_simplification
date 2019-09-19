@@ -128,6 +128,45 @@ def join_entries(term,entries):
   
   return union
 
+def prune_entries(entries):
+  """
+  Remove from terms corresponding to MeSH ID:
+    - plural forms (-s/-es)
+    - hyphened forms
+    - combination
+  
+  Args:
+    entries (set) : collection of MeSH terms
+  Return:
+    pruned (set) : pruned MeSH terms 
+  """
+  
+  to_remove = set()
+  
+  for w in entries:
+    # remove plural in -s
+    if (w.endswith('s') and w[:-1] in entries):
+      to_remove.add(w)
+    # remove plural in -es, case 1 : loss -> losses 
+    if (w.endswith('es') and w[:-2] in entries):
+      to_remove.add(w)
+    # remove plural in -es, case 1 : porosis -> poroses 
+    if (w.endswith('es') and w[:-2]+"is" in entries):
+      to_remove.add(w)
+    # remove hyphened form
+    if ('-' in w and w.replace("-",' ') in entries):
+      to_remove.add(w)
+    # remove hyphened form, plural case 1
+    if ('-' in w and w.replace("-",' ')[:-2] in entries):
+      to_remove.add(w)
+    # remove hyphened form, plural case 2
+    if ('-' in w and w.replace("-",' ')[:-2]+"is" in entries):
+      to_remove.add(w)
+  
+  pruned = set([w for w in entries if w not in to_remove])
+  
+  return pruned
+
 
 def parse_mesh_db(path):
   """
@@ -154,7 +193,8 @@ def parse_mesh_db(path):
       if meshIds:
         for meshId in meshIds:
           mesh_db[meshId] = join_entries(meshTerm,meshEntries)
-  
+          mesh_db[meshId] = prune_entries(mesh_db[meshId])
+          
   return mesh_db
 
 if __name__ == "__main__":
@@ -164,7 +204,7 @@ if __name__ == "__main__":
   mesh_path = args.mesh_path
   
   mesh_dir = iom.folder_name(mesh_path)
-  mesh_db_path = iom.join_paths([mesh_dir,"mesh.pkl"])
+  mesh_db_path = iom.join_paths([mesh_dir,"mesh2018.pkl"])
   
   mesh_db = parse_mesh_db(mesh_path)
   
