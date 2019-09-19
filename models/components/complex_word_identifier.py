@@ -8,12 +8,11 @@ Created on Fri Sep 21 16:13:46 2018
 
 class ComplexWordIdentifier:
   
-  @classmethod
-  def getComplexityScore(cls,word,complex_freq,simple_freq):
+  def getComplexityScore(self,word,complex_freq,simple_freq):
     
-    sci_f = cls.getComplexFrequency(word,complex_freq)
+    sci_f = self.getComplexFrequency(word,complex_freq)
     
-    std_f = cls.getSimpleFrequency(word,simple_freq)
+    std_f = self.getSimpleFrequency(word,simple_freq)
     
     L = len(word)
     
