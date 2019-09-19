@@ -13,7 +13,9 @@ Project for 2019 scholarship granted by Friedrich Wingert Foundation.
 ## Lexical Simplifier Pipeline
 
 ![Lexical Simplifier Pipeline](newlexsimplpipe.png)
-*Lexical Simplification Pipeline. Picture taken from (Paetzold et al. 2015) [1](#references)*
+
+
+*Lexical Simplification Pipeline. Picture taken from (Paetzold et al. 2015) [[1]](#references)*
 
 
 
@@ -23,7 +25,7 @@ Project for 2019 scholarship granted by Friedrich Wingert Foundation.
 
 2. Use scispacy AbbreviationDetector to expand abbreviations and reduce vocabulary
 
-3. Learn a mapping between plain english word embeddings and the medical one, simalar to what they do in (Yao Zijun, et al. 2018) [2](#references)
+3. Learn a mapping between plain english word embeddings and the medical one, simalar to what they do in (Yao Zijun, et al. 2018) [[2]](#references)
 
 
 ## Acknowledgements
