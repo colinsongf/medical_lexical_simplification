@@ -13,7 +13,7 @@ Project for 2019 scholarship granted by Friedrich Wingert Foundation.
 ## Lexical Simplifier Pipeline
 
 ![Lexical Simplifier Pipeline](lexsimplpipe.png)
-*Picture taken from (Paetzold et al. 2015) [1]*
+*Lexical Simplification System Pipeline. Picture taken from (Paetzold et al. 2015) [1]*
 
 
 
