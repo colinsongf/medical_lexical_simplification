@@ -10,38 +10,25 @@ Created on Fri Sep 21 15:50:42 2018
 from abc import ABCMeta,abstractmethod
 
 
-class Word2VecSelector(metaclass = ABCMeta):
+class AbstractSelector(metaclass = ABCMeta):
   
-  @classmethod  
-  def get_pos(cls,word,tagger):
+  def __init__(self,char_ngram):
+    self.char_ngram = char_ngram
     
-    pos_word = tagger.parse(word)[0][2][0].lower()
+  def filter_lemma(self,complex_word,candidates):
+        
+    # generate list of character ngrams for a given word
+    char_ngram = [complex_word[i:i+self.char_ngram] for i in range(len(complex_word)-self.char_ngram+1)]
     
-    return pos_word
+    candidates = set([w for w in candidates if not any([c in w for c in char_ngram])])
+        
+    return candidates
   
-  @classmethod
-  def share_lemma_filter(cls,word,substitutions,char_ngram):
+  def filter_postag(complex_word,candidates):
     
-    
-    c_ng = char_ngram
-    
-    char_ngram = [word[i:i+c_ng] for i in range(len(word)-c_ng+1)]
-    
-    substitutions = set([w for w in substitutions if not any([c in w for c in char_ngram])])
-    
-#    print("Same lemma : {}".format(substitutions))
-    
-    return substitutions
-  
-  @classmethod
-  def same_pos_tag_filter(cls,word,substitutions,tagger):
-    
-    pos_word = cls.get_pos(word,tagger)
+    cw_pos = complex_word.pos_
     
     substitutions = set([w for w in substitutions if cls.get_pos(w,tagger) == pos_word])
-    
-    
-#    print("Same pos : {}".format(substitutions))
     
     return substitutions
   

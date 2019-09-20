@@ -6,27 +6,95 @@ Created on Fri Sep 21 16:13:46 2018
 @author: Samuele Garda
 """
 
-class ComplexWordIdentifier:
+class DummyComplexWordIdentifier(object):
+  """
+  Implements a simple complex word identifier which uses the frequency as a proxy for complexity.
   
-  def getComplexityScore(self,word,complex_freq,simple_freq):
+  Frequency of word in a 'complex' and 'simple' vocabulary are combined to obtain a score.
+  If that score is below a given threshold the word is considered complex.
+  """
+
+  
+  def __init__(self,threshold,complex_freq,simple_freq):
+    """
+    Initialize DummyComplexWordIdentifier.
     
-    sci_f = self.getComplexFrequency(word,complex_freq)
+    Args:
+      complex_freq (dict) : lookup complex word -> frequency
+      simple_freq (dict) : lookup simple word -> frequency
+      threshold (int) : threshold below which word is considered complex
+    """
     
-    std_f = self.getSimpleFrequency(word,simple_freq)
+    self.complex_freq = self.complex_freq
+    self.simple_freq = self.simple_freq
+    self.threshold = threshold
+    
+  
+  def is_complex(self,word):
+    """
+    Determine if a word is considered complex.
+    
+    Args:
+      word (str) : word
+    Return:
+      res (bool) : whether the word is considered complex
+    """
+    
+    score = self.get_complexity_score(word)
+    
+    res = False if score > self.threshold else True
+    
+    return res
+  
+  def get_complexity_score(self,word):
+    """
+    Compute complexity score. The following computes the score:
+    
+    .. math::
+      \\frac{sf}{cf} \\times length 
+      
+    where `sf` is frequency in simple vocabulary, `cf` in complex and
+    `length` is the number of word's charcters 
+    
+    Args:
+      word (str) : word
+    Return:
+      score (int) : complexity score
+    """
+    
+    sci_f = self.get_complex_freq(word)
+    
+    std_f = self.get_simple_freq(word)
     
     L = len(word)
     
     score = (sci_f / std_f ) * L
-    
+
     return score
   
-  @classmethod
-  def getComplexFrequency(cls,word,complex_freq):
+  def get_complex_freq(self,word):
+    """
+    Get word frequency in complex vocabulary
     
-    return complex_freq.get(word,1e-8)
+    Args:
+      word (str) : word
+    Return:
+      freq (int) : word frequency
+    """
+    
+    freq = self.complex_freq.get(word,1e-10)
+    return freq
   
-  @classmethod
-  def getSimpleFrequency(cls,word,simple_freq):
+  def get_simple_freq(self,word):
+    """
+    Get word frequency in simple vocabulary
     
-    return simple_freq.get(word,1e-8)
- 
+    Args:
+      word (str) : word
+    Return:
+      freq (int) :  word frequency
+    """
+    
+    freq = self.simple_freq.get(word,1e-10)
+    return freq
+
