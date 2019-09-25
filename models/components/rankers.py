@@ -6,53 +6,128 @@ Created on Fri Sep 21 16:23:14 2018
 @author: Samuele Garda
 """
 
+from abc import ABCMeta,abstractmethod
 
-class SimpleScienceRanker:
+
+class AbstractRanker(object,metaclass = ABCMeta):
+  """
+  Abstract class from which all ranker classes should inherit.
+  Insure that the method for ranking candidates is implemented
+  """
   
+  @abstractmethod
+  def rank_candidates():
+    """
+    Abstract method that implements ranking logic
+    """
+    pass
+
+
+class SimpleScienceRanker(AbstractRanker):
+  """
+  Ranker as implemented in:
   
-  @staticmethod
-  def rankSubstitutions(word,substitutions,model):
+  Kim, Yea Seul, et al. "Simplescience: Lexical simplification of scientific terminology."
+  Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing. 2016.
+  """  
+  
+  def rank_candidates(complex_word,candidates,model):
+    """
+    Sort simplification candidates in decreasing cosine similarity with compelx word
     
-    subs = [(sub,model.similarity(sub,word)) for sub in substitutions]
+    Args:
+      complex_word (str) : word
+      model (gensim.models.Word2Vec) : embedding model
+      candidates (list) : simplification candidates
+    Return:
+      candidates (list) : ranked simplification candidates
+    """
     
-    subs = sorted(subs , key=lambda tup: tup[1], reverse = True)
+    candidates = [(sub,model.similarity(sub,complex_word)) for sub in candidates]
+    
+    candidates = sorted(candidates , key=lambda tup: tup[1], reverse = True)
   
-    subs = [sub[0] for sub in subs]
+    candidates = [sub[0] for sub in candidates]
     
 #    print("Ranked : {}".format(subs))
     
-    return subs
+    return candidates
   
   
 
-class ParialBeamSearchRanker:
+class PartialBeamSearchRanker:
+  """
+  Ranker that uses BeamSearch on complex word to sort the simplification candidates
+  """
   
-  @classmethod  
-  def merge_words(cls,w1,w2):
+  def __init__(self,lm,beam_width):
+    """
+    Initialize Ranker.
     
-    return w1+w2+" "
+    Args:
+      lm (kenlm.Model) : Language model interfaced with kenlm python library
+      beam_width (int) : number of candidates to consider
+    """
+    super(PartialBeamSearchRanker,self).__init__()
+    self.lm = lm
+    self.beam_width = beam_width
   
-  @classmethod
-  def prune_beams(cls,lm,hypotheses,beam_width):
+    
+  def merge_words(self,w1,w2):
+    """
+    Join two strings and add final space.
+    
+    Args:
+      w1 (str) : first string
+      w2 (str) : second string
+    return:
+      out (str) : joined strings
+    """
+    
+    out = w1+w2+" "
+    return out 
+  
+  
+  def prune_beams(self,hypotheses):
+    """
+    Implement beam search step. All simplification candidates are sorted by increasing 
+    negative log-likelihood of language model given its context.
+    
+    Args:
+      hypotheses (list) : simplification candidates
+    
+    """
         
-    scored_hypotheses = [(hypo, lm.score(hypo, bos = True, eos = False)) for hypo in hypotheses]
+    scored_hypotheses = [(hypo, self.lm.score(hypo, bos = True, eos = False)) for hypo in hypotheses]
             
-    beams_to_keep = sorted(scored_hypotheses , key=lambda tup: tup[1], reverse = True)[:beam_width]
-                
-    return [hypo[0] for hypo in beams_to_keep]
+    beams_to_keep = sorted(scored_hypotheses , key=lambda tup: tup[1], reverse = True)[:self.beam_width]
+          
+    beams_to_keep = [hypo[0] for hypo in beams_to_keep]      
+    
+    return beams_to_keep
   
-  @classmethod
-  def rankSubstitutions(cls,lm,sentence,word,substitutions):
+  
+  def rank_candidates(self,comlex_word,candidates,context):
+    """
+    Sort simplification candidates decreasing by negative log-likelihood given by language model
     
-    start_hypo = sentence + " "
+    Args:
+      complex_word (str) : word
+      candidates (list) : simplification candidates
+      context (str or None) : context in which word appears
+    Return:
+      candidates (list) : ranked simplification candidates
+      
+    """
     
-    subs = [cls.merge_words(start_hypo,sub) for sub in substitutions]
     
-    subs = cls.prune_beams(lm,subs,beam_width = len(subs)) 
+    start_hypo = "<s> "+ context + " " if context is not None else "<s> "
     
-    subs = [sub.split()[-1] for sub in subs] 
+    candidates = self.prune_beams([self.merge_words(start_hypo,sub) for sub in candidates])
         
-    return subs
+    candidates = [sub.split()[-1] for sub in candidates] 
+        
+    return candidates
     
     
     

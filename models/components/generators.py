@@ -68,10 +68,13 @@ class Word2VecGenerator(AbstractGenerator):
     return subs
   
   
-class PoinGenerator(AbstractGenerator):
+class PoincareGenerator(AbstractGenerator):
   """
   Implement substitute generator with Poincare embedding model.
   """
+  
+  def __init__(self):
+    super(PoincareGenerator,self).__init__()
     
   def get_candidates(self,model,word):
     """
