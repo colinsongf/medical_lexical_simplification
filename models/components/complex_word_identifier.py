@@ -6,7 +6,28 @@ Created on Fri Sep 21 16:13:46 2018
 @author: Samuele Garda
 """
 
-class DummyComplexWordIdentifier(object):
+from abc import ABCMeta,abstractmethod
+
+
+class AbstractComplexWordIdentifier(object,metaclass = ABCMeta):
+  """
+  Abstract class from which all complex word identifiers classes should inherit.
+  Insure that the method for checking whether a word is complex is implemented.
+  """
+  
+  @abstractmethod
+  def is_complex():
+    """
+    Determine if a word is considered complex.
+    
+    Args:
+      word (str) : word
+    Return:
+      res (bool) : whether the word is considered complex
+    """
+    pass
+
+class DummyComplexWordIdentifier(AbstractComplexWordIdentifier):
   """
   Implements a simple complex word identifier which uses the frequency as a proxy for complexity.
   
@@ -25,8 +46,8 @@ class DummyComplexWordIdentifier(object):
       threshold (int) : threshold below which word is considered complex
     """
     
-    self.complex_freq = self.complex_freq
-    self.simple_freq = self.simple_freq
+    self.complex_freq = complex_freq
+    self.simple_freq = simple_freq
     self.threshold = threshold
     
   
