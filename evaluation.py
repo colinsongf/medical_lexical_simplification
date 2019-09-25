@@ -8,6 +8,7 @@ Created on Mon Sep 24 17:06:57 2018
 
 import pandas as pd
 import logging
+from collections import OrderedDict
 import numpy as np
 from collections import defaultdict
 from nltk.tokenize import sent_tokenize
@@ -21,12 +22,9 @@ logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(module)s: %(messag
 
 class UnsupervisedEvaluation:
   
-  def __init__(self,complex_sents,complex_freq,simple_freq,):
+  def __init__(self,complex_sents):
     
     self.eval_data = self.load_complex_sents(complex_sents)
-    self.complex_freq = unpickle(complex_freq)
-    self.simple_freq = unpickle(simple_freq)
-    self.cwi = ComplexWordIdentifier
   
   def load_complex_sents(self,complex_sents):
     
@@ -93,36 +91,33 @@ class UnsupervisedEvaluation:
   
   def evaluate_simplifier(self,simplifier):
     
-    tot_ovix,tot_lix,tot_fkg = 0,0,0
-    tot_simple_ovix,tot_simple_lix,tot_simple_fkg = 0,0,0
-    counts = 0
-   
+    complex_scores = dict([("ovix",0),("lix",0),("fkg",0)])
+    simplified_scores = dict(("ovix",0),("lix",0),("fkg",0))
+    
+    tot = 0
     
     for complex_txt in self.eval_data:
       
-      tot_ovix += self.ovix(complex_txt)
-      tot_lix += self.lix(complex_txt)
-      tot_fkg += self.flesch_kincaid_grad(complex_txt)
+      complex_scores["ovix"] += self.ovix(complex_txt)
+      complex_scores["lix"] += self.lix(complex_txt)
+      complex_scores["fkg"] += self.flesch_kincaid_grad(complex_txt)
       
-      simple_txt = []
-      
-      for word in complex_txt:
-        c_score = self.cwi.getSimpleFrequency(word,self.simple_freq)
-        if 0 < c_score <= 4000:
-          sub = simplifier.getSubstitutions(word,context = ' '.join(simple_txt))
-          sub = sub[0] if sub else word
-          simple_txt.append(sub)
-        else:
-          simple_txt.append(word)
+      simple_txt = simplifier.simplify_text(complex_txt)
           
-      tot_simple_ovix += self.ovix(simple_txt)
-      tot_simple_lix += self.lix(simple_txt)
-      tot_simple_fkg += self.flesch_kincaid_grad(simple_txt)
+      simplified_scores["ovix"] += self.ovix(simple_txt)
+      simplified_scores["lix"] += self.lix(simple_txt)
+      simplified_scores["fkg"] += self.flesch_kincaid_grad(simple_txt)
          
-      counts += 1
+      tot += 1
+      
+    complex_scores = OrderedDict((k,complex_scores.get(k)/tot) for k in sorted(complex_scores.keys()) )
+    simplified_scores = OrderedDict((k,simplified_scores.get(k)/tot) for k in sorted(simplified_scores.keys()) )
     
-    logger.info("Original Texts : Ovix - {} , Lix - {} , FK-GT - {}".format(tot_ovix/counts,tot_lix/counts,tot_fkg/counts))
-    logger.info("Simplified Texts : Ovix - {} , Lix - {} , FK-GT - {}".format(tot_simple_ovix/counts,tot_simple_lix/counts,tot_simple_fkg/counts))
+    logger.info("Original Average Scores : OVIX - {} , LIX - {} , FKGT - {}".format(complex_scores.get("ovix"),
+                complex_scores.get("lix"),complex_scores.get("fkg")))
+    
+    logger.info("Simplified Average Scores : OVIX - {} , LIX - {} , FKGT - {}".format(simplified_scores.get("ovix"),
+                simplified_scores.get("lix"),simplified_scores.get("fkg")))
       
 class SimpleScienceEvaluation(object):
   

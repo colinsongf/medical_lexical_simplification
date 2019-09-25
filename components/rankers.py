@@ -96,6 +96,9 @@ class PartialBeamSearchRanker:
     Args:
       hypotheses (list) : simplification candidates
     
+    Return:
+      
+      beams_to_keep (list) : ranked simplification candidates
     """
         
     scored_hypotheses = [(hypo, self.lm.score(hypo, bos = True, eos = False)) for hypo in hypotheses]
@@ -107,25 +110,28 @@ class PartialBeamSearchRanker:
     return beams_to_keep
   
   
-  def rank_candidates(self,comlex_word,candidates,context):
+  def rank_candidates(self,comlex_word,candidates,context,return_beams = False):
     """
     Sort simplification candidates decreasing by negative log-likelihood given by language model
     
     Args:
       complex_word (str) : word
       candidates (list) : simplification candidates
-      context (str or None) : context in which word appears
+      context (str or None) : context in which word appears 
     Return:
       candidates (list) : ranked simplification candidates
       
     """
     
     
-    start_hypo = "<s> "+ context + " " if context is not None else "<s> "
+    if context is not None:
+      start_hypo = context if context.startswith("<s>") else "<s> "+ context + " "
+    else:  
+      start_hypo = "<s> "
     
     candidates = self.prune_beams([self.merge_words(start_hypo,sub) for sub in candidates])
         
-    candidates = [sub.split()[-1] for sub in candidates] 
+    candidates = [sub.split()[-1] for sub in candidates] if return_beams else candidates
         
     return candidates
     
