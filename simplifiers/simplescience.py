@@ -8,10 +8,33 @@ Created on Wed Sep 25 15:22:01 2019
 
 from simplifiers.abstract_simplifier import AbstractSimplifier
 
-class SimpleScienceSimplifier(AbstractSimplifier):
+class SimpleScience(AbstractSimplifier):
+  """
+  Lexical Simplifier with following pipeline components:
+    - generator : Word2Vec or FastText embedding model
+    - selector : SimpleScience selector
+    - ranker : Simple Science ranker
+    
+  Implemented as in:
+    
+      Kim, Yea Seul, et al. "Simplescience: Lexical simplification of scientific terminology."
+      Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing. 2016.
+
+  """  
   
   def __init__(self,model):
-    super(SimpleScienceSimplifier,self).__init__()
+    """
+    Initialize SimpleScience Simplifier.
+    
+    Args:
+      cwi (components.complex_word_identifier) : subclass of AbstractComplexWordIdentifier
+      generator (components.generators) : subclass of AbstractGenerator
+      selector (components.selectors.SimpleScienceSelector) : SimpleScience selector
+      ranker (components.rankers.SimpleScienceRanker) : SimpleScience ranker
+      model (gensim.models.*) : embedding model
+      parser (spacy.lang.*) : spacy language instance
+    """
+    super(SimpleScience,self).__init__()
     self.model = model
     
   def simplify_word(self,word,context = None):

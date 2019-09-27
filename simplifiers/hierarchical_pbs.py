@@ -9,8 +9,25 @@ Created on Wed Sep 25 15:43:06 2019
 from simplifiers.abstract_simplifier import AbstractSimplifier
 
 class HierarchicalPBS(AbstractSimplifier):
+  """
+  Lexical Simplifier with following pipeline components:
+    - generator : Word2Vec or FastText embedding model
+    - selector : MeSH hierarchy
+    - ranker : Partial Beam Search
+  """
   
   def __init__(self,model):
+    """
+    Initialize HierarchicalPBS Simplifier.
+    
+    Args:
+      cwi (components.complex_word_identifier) : subclass of AbstractComplexWordIdentifier
+      generator (components.generators.Word2VecGenerator) : subclass of AbstractGenerator
+      selector (components.selectors.MeSHSelector) : Hierarchical selector
+      ranker (components.rankers.PartialBeamSearchRanker) : Partial Beam Search ranker
+      model (gensim.models.Word2Vec or gensim.models.FastText) : embedding model
+      parser (spacy.lang.*) : spacy language instance
+    """
     super(HierarchicalPBS,self).__init__()
     self.model = model
     

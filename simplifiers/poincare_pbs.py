@@ -9,8 +9,24 @@ Created on Wed Sep 25 15:57:34 2019
 from simplifiers.abstract_simplifier import AbstractSimplifier
 
 class PoincarePBS(AbstractSimplifier):
+  """
+  Lexical Simplifier with following pipeline components:
+    - generator : Poincare embedding model
+    - selector : None
+    - ranker : Partial Beam Search
+  """  
   
   def __init__(self,model):
+    """
+    Initialize PoincarePBS Simplifier.
+    
+    Args:
+      cwi (components.complex_word_identifier) : subclass of AbstractComplexWordIdentifier
+      generator (components.generators.PoincareGenerator) : subclass of AbstractGenerator
+      ranker (components.rankers.PartialBeamSearchRanker) : Partial Beam Search ranker
+      model (gensim.models.PoincareModel) : embedding model
+      parser (spacy.lang.*) : spacy language instance
+    """
     super(PoincarePBS,self).__init__()
     self.model = model
     

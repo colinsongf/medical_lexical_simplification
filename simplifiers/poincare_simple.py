@@ -9,8 +9,24 @@ Created on Wed Sep 25 15:56:01 2019
 from simplifiers.abstract_simplifier import AbstractSimplifier
 
 class PoincareSimple(AbstractSimplifier):
+  """
+  Lexical Simplifier with following pipeline components:
+    - generator : Poincare embedding model
+    - selector : None
+    - ranker : Simple Science ranker
+  """  
   
   def __init__(self,model):
+    """
+    Initialize PoincareSimple Simplifier.
+    
+    Args:
+      cwi (components.complex_word_identifier) : subclass of AbstractComplexWordIdentifier
+      generator (components.generators.PoincareGenerator) : subclass of AbstractGenerator
+      ranker (components.rankers.SimpleScinceRanker) : SimpleScince ranker
+      model (gensim.models.PoincareModel) : embedding model
+      parser (spacy.lang.*) : spacy language instance
+    """
     super(PoincareSimple,self).__init__()
     self.model = model
     
