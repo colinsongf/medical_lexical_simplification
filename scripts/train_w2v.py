@@ -78,11 +78,11 @@ def get_model(hyperparameters):
     model_class = FastText
   
   model = model_class(size=hyperparameters.get("size",100),
-                       min_count=0,
-                       window=hyperparameters.get("window",10),
-                       workers=hyperparameters.get("workers"),
-                       hs=0,
-                       negative=hyperparameters.get("nce",20))
+                      min_count=0,
+                      window=hyperparameters.get("window",10),
+                      workers=hyperparameters.get("workers"),
+                      hs=0,
+                      negative=hyperparameters.get("nce",20))
   
   return model
   
