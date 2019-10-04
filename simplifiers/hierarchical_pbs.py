@@ -6,7 +6,7 @@ Created on Wed Sep 25 15:43:06 2019
 @author: Samuele Garda
 """
 
-from simplifiers.abstract_simplifier import AbstractSimplifier
+from simplifiers.abstract_simplifiers import AbstractSimplifier
 
 class HierarchicalPBS(AbstractSimplifier):
   """
@@ -31,26 +31,42 @@ class HierarchicalPBS(AbstractSimplifier):
     super(HierarchicalPBS,self).__init__()
     self.model = model
     
-  def simplify_word(self,word,context = None,return_beams = False):
+  def simplify_word(self,word,context = None, select= True, rank = True):
     
     parser = self.parser
     model = self.model
     
     candidates = self.generator.get_candidates(model = model, word = word)
     
-    candidates = self.selector.select_candidates(complex_word = word,
+    if select:
+      candidates = self.selector.select_candidates(complex_word = word,
                                                  candidates = candidates,
                                                  parser = parser,
                                                  context = context)
     
-    candidates = self.ranker.rank_candidates(complex_word = word,
-                                             candidates = candidates,
-                                             context = context,
-                                             return_beams = return_beams)
+    if rank:
+      candidates = self.ranker.rank_candidates(complex_word = word,
+                                               candidates = candidates,
+                                               context = context,
+                                               )
     
     return candidates
   
   
   def simplify_text(self,text):
     
-    raise NotImplementedError("Unsupervised simplification is not implemented yet for Simplifiers with PBS ranker.")
+    hypos = ["<s> " for _ in range(self.ranker.beam_width)]
+    
+    for word in text:
+      if self.cwi.is_complex(word):
+        candidates = self.simplify_text(word, rank = False)
+        hypos = [self.ranker.merge_words(h,c) for h in hypos for c in candidates] 
+        hypos = self.ranker.prune_beams(hypos)
+      else:
+        hypos = [self.ranker.merge_words(h,word) for h in hypos]
+    
+    return hypos
+        
+    
+    
+  

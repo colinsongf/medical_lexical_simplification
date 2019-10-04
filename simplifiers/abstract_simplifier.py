@@ -43,7 +43,17 @@ class AbstractSimplifier(object,metaclass = ABCMeta):
     pass
   
   @abstractmethod
-  def simplify_text():
-    pass
+  def simplify_text(self,text):
+    
+    simplified_text = []
+    
+    for word in text:
+      if self.cwi.is_complex(word):
+        context = " ".join(simplified_text)
+        candidates = self.simplify_word(word = word, context = context)
+        top_candidate = self.get_top_candidate(candidates)
+        simplified_text.append(top_candidate)
+      else:
+        simplified_text.append(word)
     
   

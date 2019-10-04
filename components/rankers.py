@@ -75,7 +75,7 @@ class PartialBeamSearchRanker:
     
   def merge_words(self,w1,w2):
     """
-    Join two strings and add final space.
+    Join two strings .
     
     Args:
       w1 (str) : first string
@@ -84,7 +84,7 @@ class PartialBeamSearchRanker:
       out (str) : joined strings
     """
     
-    out = w1+w2+" "
+    out = " ".join(w1,w2)
     return out 
   
   
@@ -110,7 +110,7 @@ class PartialBeamSearchRanker:
     return beams_to_keep
   
   
-  def rank_candidates(self,comlex_word,candidates,context,return_beams = False):
+  def rank_candidates(self,comlex_word,candidates,context = None):
     """
     Sort simplification candidates decreasing by negative log-likelihood given by language model
     
@@ -125,13 +125,13 @@ class PartialBeamSearchRanker:
     
     
     if context is not None:
-      start_hypo = context if context.startswith("<s>") else "<s> "+ context + " "
+      start_hypo = context if context.startswith("<s>") else "<s> "+ context 
     else:  
-      start_hypo = "<s> "
+      start_hypo = "<s>"
     
     candidates = self.prune_beams([self.merge_words(start_hypo,sub) for sub in candidates])
         
-    candidates = [sub.split()[-1] for sub in candidates] if return_beams else candidates
+    candidates = [sub.split()[-1] for sub in candidates]
         
     return candidates
     
